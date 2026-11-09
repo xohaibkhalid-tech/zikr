@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ur-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rozana Zikr</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0E6B4E">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zikr">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Karla:wght@400;600;700&display=swap">
+<style>
+/* Layout: one column. Big tap ring on top, the four daily zikr listed below as the selector. */
+:root{
+  --bg:#EDF2EE; --surface:#F8FAF8; --fg:#13241C; --muted:#5B6E64; --line:#D3DDD6;
+  color-scheme:light; --accent:#0E6B4E; --accent-fg:#FFFFFF; --gold:#A87B1E; --track:#D8E2DB;
+  --font-ar:'Amiri','Noto Naskh Arabic','Geeza Pro',serif;
+  --font-ui:'Karla',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1814; --surface:#16231D; --fg:#E7EFEA; --muted:#93A79C; --line:#263830;
+    --accent:#46B88D; --accent-fg:#06231A; --gold:#D9B24F; --track:#26382F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1814; --surface:#16231D; --fg:#E7EFEA; --muted:#93A79C; --line:#263830;
+  --accent:#46B88D; --accent-fg:#06231A; --gold:#D9B24F; --track:#26382F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-ui); font-size:16px; line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-top:calc(20px + env(safe-area-inset-top, 0px));
+  padding-bottom:calc(40px + env(safe-area-inset-bottom, 0px));
+}
+.wrap{max-width:520px; margin:0 auto; display:flex; flex-direction:column; gap:28px}
+button{font:inherit; color:inherit; cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+
+header{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.date{font-size:15px; color:var(--muted); font-weight:600; letter-spacing:.02em}
+.streak{font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gold)}
+
+.current{display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center}
+.where{font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.ar{font-family:var(--font-ar); font-size:clamp(28px,7.5vw,36px); line-height:2; margin:0; text-wrap:balance}
+.tr{margin:0; color:var(--muted); font-style:italic; font-size:15px; max-width:34ch; text-wrap:balance}
+
+.tap{
+  position:relative; width:min(250px,72vw); aspect-ratio:1; border-radius:50%; border:0;
+  background:var(--surface); display:grid; place-items:center; margin-top:6px;
+  box-shadow:0 0 0 1px var(--line); -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+  transition:transform .12s ease;
+}
+.tap:active{transform:scale(.97)}
+.tap svg{position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg)}
+.tap .track{stroke:var(--track)}
+.tap .bar{stroke:var(--accent); transition:stroke-dashoffset .25s ease, stroke .25s ease}
+.tap.done .bar{stroke:var(--gold)}
+.tap .inner{position:relative; display:flex; flex-direction:column; align-items:center; line-height:1}
+.count{font-size:clamp(56px,18vw,76px); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.of{margin-top:8px; font-size:15px; color:var(--muted); font-variant-numeric:tabular-nums}
+.hint{margin-top:10px; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700}
+.tap.done .hint{color:var(--gold)}
+
+.controls{display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px}
+.btn{
+  min-height:44px; padding:0 18px; border-radius:999px; background:transparent;
+  border:1px solid var(--line); font-weight:600; font-size:15px;
+}
+.btn:hover{border-color:var(--muted)}
+.btn.warn{border-color:var(--gold); color:var(--gold)}
+.target{display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; overflow:hidden}
+.target span{padding:0 6px 0 16px; font-size:14px; color:var(--muted); font-weight:600}
+.target button{width:44px; height:44px; border:0; background:transparent; font-size:20px; line-height:1}
+.target input{
+  width:56px; height:44px; border:0; background:transparent; text-align:center; font:inherit;
+  font-weight:700; color:var(--fg); font-variant-numeric:tabular-nums; -moz-appearance:textfield;
+}
+.target input::-webkit-outer-spin-button,.target input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+
+h2{font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 4px}
+.list{display:flex; flex-direction:column}
+.row{
+  display:grid; grid-template-columns:1fr auto; gap:2px 12px; align-items:center; width:100%;
+  text-align:left; background:transparent; border:0; border-top:1px solid var(--line); padding:14px 4px; min-width:0;
+}
+.row:last-child{border-bottom:1px solid var(--line)}
+.row .name{font-weight:700; min-width:0}
+.row .sub{grid-column:1; font-size:13px; color:var(--muted)}
+.row .num{grid-row:1; grid-column:2; font-weight:700; font-variant-numeric:tabular-nums}
+.row .meter{grid-column:1 / -1; height:5px; border-radius:3px; background:var(--track); overflow:hidden; margin-top:8px}
+.row .meter i{display:block; height:100%; background:var(--accent); transition:width .25s ease}
+.row.done .meter i{background:var(--gold)}
+.row.done .num{color:var(--gold)}
+.row[aria-current="true"]{background:var(--surface)}
+.row[aria-current="true"] .name::before{content:""; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--accent); margin-right:8px}
+.foot{font-size:13px; color:var(--muted); text-align:center; margin:0}
+@media (prefers-reduced-motion: reduce){ .tap,.tap .bar,.row .meter i{transition:none} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="date" id="date"></div>
+    <div class="streak" id="streak" hidden></div>
+    <button class="btn" id="voice" type="button">Awaaz mein yaad dihani</button>
+  </header>
+
+  <section class="current" aria-live="polite">
+    <div class="where" id="where"></div>
+    <p class="ar" id="ar" dir="rtl" lang="ar"></p>
+    <p class="tr" id="tr"></p>
+    <button class="tap" id="tap" type="button" aria-label="Ginti barhayein">
+      <svg viewBox="0 0 240 240" aria-hidden="true">
+        <circle class="track" cx="120" cy="120" r="108" fill="none" stroke-width="8"/>
+        <circle class="bar" id="bar" cx="120" cy="120" r="108" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="678.58" stroke-dashoffset="678.58"/>
+      </svg>
+      <span class="inner">
+        <span class="count" id="count">0</span>
+        <span class="of" id="of"></span>
+        <span class="hint" id="hint">Tap karein</span>
+      </span>
+    </button>
+    <div class="controls">
+      <button class="btn" id="undo" type="button">Ek kam</button>
+      <button class="btn" id="reset" type="button">Reset</button>
+      <div class="target" role="group" aria-label="Target">
+        <span>Target</span>
+        <button id="tminus" type="button" aria-label="Target kam karein">&minus;</button>
+        <input id="tinput" type="number" inputmode="numeric" min="1" max="9999" aria-label="Target">
+        <button id="tplus" type="button" aria-label="Target barhayein">+</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Aaj ka hisaab</h2>
+    <div class="list" id="list"></div>
+  </section>
+
+  <p class="foot">Ginti is phone mein save hoti hai aur raat 12 baje naye din ke liye zero ho jati hai.</p>
+</div>
+
+<script>
+const ITEMS = [
+  { id:'ast', name:'Astaghfirullah', sub:'Roz', where:'Astaghfirullah', def:10,
+    ar:'أَسْتَغْفِرُ اللّٰهَ', tr:'Astaghfirullah' },
+  { id:'dur', name:'Durood Shareef', sub:'Roz', where:'Durood Shareef', def:10,
+    ar:'اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ',
+    tr:"Allahumma salli 'ala Muhammadin wa 'ala aali Muhammad." },
+  { id:'kf', name:'Kalima-e-Tauheed', sub:'Fajr ke baad', where:'Kalima-e-Tauheed · Fajr ke baad', def:100,
+    ar:'لَا إِلَٰهَ إِلَّا اللّٰهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
+    tr:"La ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa huwa 'ala kulli shay'in qadeer." },
+  { id:'ka', name:'Kalima-e-Tauheed', sub:'Asr ke baad', where:'Kalima-e-Tauheed · Asr ke baad', def:100,
+    ar:'لَا إِلَٰهَ إِلَّا اللّٰهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
+    tr:"La ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa huwa 'ala kulli shay'in qadeer." }
+];
+const KEY = 'rozana-zikr-v1';
+const CIRC = 2 * Math.PI * 108;
+const DAYS = ['Itwaar','Peer','Mangal','Budh','Jumeraat','Juma','Hafta'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let S = { sel:'ast', targets:{}, days:{} };
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
+if (!S.targets) S.targets = {};
+if (!S.days) S.days = {};
+if (!ITEMS.some(i => i.id === S.sel)) S.sel = 'ast';
+
+const $ = id => document.getElementById(id);
+const dayKey = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+const target = id => S.targets[id] || ITEMS.find(i => i.id === id).def;
+const getCount = (k, id) => (S.days[k] && S.days[k][id]) || 0;
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
+function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch(e) {} }
+
+let today = dayKey(new Date());
+function setCount(id, n){
+  if (!S.days[today]) S.days[today] = {};
+  S.days[today][id] = Math.max(0, n);
+  // keep only the last 60 days
+  const keys = Object.keys(S.days).sort();
+  while (keys.length > 60) delete S.days[keys.shift()];
+  save();
+}
+const dayComplete = k => ITEMS.every(i => getCount(k, i.id) >= target(i.id));
+function streak(){
+  let d = new Date(), n = 0;
+  if (!dayComplete(dayKey(d))) d.setDate(d.getDate() - 1);
+  while (dayComplete(dayKey(d)) && n < 400){ n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+
+function render(){
+  const now = new Date();
+  today = dayKey(now);
+  $('date').textContent = DAYS[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS[now.getMonth()];
+  const st = streak();
+  $('streak').hidden = st < 1;
+  $('streak').textContent = st + (st === 1 ? ' din mukammal' : ' din lagatar');
+
+  const it = ITEMS.find(i => i.id === S.sel);
+  const c = getCount(today, it.id), t = target(it.id), done = c >= t;
+  $('where').textContent = it.where;
+  $('ar').textContent = it.ar;
+  $('tr').textContent = it.tr;
+  $('count').textContent = c;
+  $('of').textContent = 'of ' + t;
+  $('hint').textContent = done ? 'Mukammal' : 'Tap karein';
+  $('bar').style.strokeDashoffset = CIRC * (1 - Math.min(c / t, 1));
+  $('tap').classList.toggle('done', done);
+  $('tap').setAttribute('aria-label', it.name + ': ' + c + ' of ' + t + '. Ginti barhayein');
+  if (document.activeElement !== $('tinput')) $('tinput').value = t;
+
+  $('list').innerHTML = ITEMS.map(i => {
+    const ci = getCount(today, i.id), ti = target(i.id), pct = Math.min(100, Math.round(ci / ti * 100));
+    return '<button type="button" class="row' + (ci >= ti ? ' done' : '') + '" data-id="' + i.id + '"' +
+      ' aria-current="' + (i.id === S.sel) + '">' +
+      '<span class="name">' + i.name + '</span><span class="num">' + ci + ' / ' + ti + '</span>' +
+      '<span class="sub">' + i.sub + '</span>' +
+      '<span class="meter"><i style="width:' + pct + '%"></i></span></button>';
+  }).join('');
+}
+
+$('tap').addEventListener('click', () => {
+  const it = S.sel, before = getCount(today, it), t = target(it);
+  setCount(it, before + 1);
+  buzz(before + 1 === t ? [30, 40, 30] : 8);
+  render();
+});
+$('undo').addEventListener('click', () => { setCount(S.sel, getCount(today, S.sel) - 1); render(); });
+
+let resetTimer = null;
+$('reset').addEventListener('click', () => {
+  const b = $('reset');
+  if (b.classList.contains('warn')) {
+    clearTimeout(resetTimer); b.classList.remove('warn'); b.textContent = 'Reset';
+    setCount(S.sel, 0); render();
+  } else {
+    b.classList.add('warn'); b.textContent = 'Pakka reset?';
+    resetTimer = setTimeout(() => { b.classList.remove('warn'); b.textContent = 'Reset'; }, 3000);
+  }
+});
+
+function setTarget(v){
+  v = Math.min(9999, Math.max(1, parseInt(v, 10) || 1));
+  S.targets[S.sel] = v; save(); render();
+}
+$('tminus').addEventListener('click', () => { const t = target(S.sel); setTarget(t - (t > 20 ? 10 : 1)); });
+$('tplus').addEventListener('click', () => { const t = target(S.sel); setTarget(t + (t >= 20 ? 10 : 1)); });
+$('tinput').addEventListener('change', e => setTarget(e.target.value));
+
+$('list').addEventListener('click', e => {
+  const row = e.target.closest('.row');
+  if (!row) return;
+  S.sel = row.dataset.id; save(); render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Awaaz: bolti hai ke kya zikr baqi hai. Browser sirf tap ke baad bolne deta hai.
+const SAY = {
+  ur: { lang:'ur-PK', open:'آپ کا ذکر ابھی مکمل نہیں ہوا۔ ', done:'ماشاء اللہ، آج کا ذکر مکمل ہے۔',
+        names:{ast:'استغفار', dur:'درود شریف', kf:'کلمہ توحید، فجر کے بعد', ka:'کلمہ توحید، عصر کے بعد'},
+        left:(nm,n)=> nm + ' میں ' + n + ' باقی ہیں۔ ' },
+  hi: { lang:'hi-IN', open:'आपका ज़िक्र अभी मुकम्मल नहीं हुआ। ', done:'माशा अल्लाह, आज का ज़िक्र मुकम्मल है।',
+        names:{ast:'इस्तग़फ़ार', dur:'दुरूद शरीफ़', kf:'कलिमा तौहीद, फ़ज्र के बाद', ka:'कलिमा तौहीद, अस्र के बाद'},
+        left:(nm,n)=> nm + ' में ' + n + ' बाकी हैं। ' },
+  en: { lang:'en-US', open:'Your zikr is not complete yet. ', done:'Mashallah, today\'s zikr is complete.',
+        names:{ast:'Astaghfirullah', dur:'Durood Shareef', kf:'Kalima after Fajr', ka:'Kalima after Asr'},
+        left:(nm,n)=> nm + ': ' + n + ' left. ' }
+};
+function speakStatus(){
+  if (!('speechSynthesis' in window)) return;
+  const voices = speechSynthesis.getVoices();
+  const pick = ['ur','hi','en'].find(k => voices.some(v => v.lang.replace('_','-').toLowerCase().startsWith(SAY[k].lang.slice(0,2)))) || 'en';
+  const P = SAY[pick];
+  const pending = ITEMS.map(i => ({ id:i.id, n: target(i.id) - getCount(today, i.id) })).filter(x => x.n > 0);
+  const text = pending.length ? P.open + pending.map(x => P.left(P.names[x.id], x.n)).join('') : P.done;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = P.lang;
+  const v = voices.find(v => v.lang.replace('_','-').toLowerCase().startsWith(P.lang.slice(0,2)));
+  if (v) u.voice = v;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+$('voice').addEventListener('click', speakStatus);
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+render();
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "Rozana Zikr",
+  "short_name": "Zikr",
+  "description": "Roz ka zikr counter: Astaghfirullah, Durood Shareef, Kalima-e-Tauheed",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EDF2EE",
+  "theme_color": "#0E6B4E",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
